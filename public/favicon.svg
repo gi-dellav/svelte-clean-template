@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Svelte Clean Template">
+  <rect width="512" height="512" rx="112" fill="#4f46e5" />
+  <text
+    x="50%"
+    y="53%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    font-family="ui-monospace, monospace"
+    font-size="280"
+    font-weight="700"
+    fill="#ffffff"
+  >S</text>
+</svg>

@@ -91,6 +91,12 @@ typings/
 .nuxt
 dist
 
+# Vite / Svelte
+.vite
+dev-dist
+.svelte-kit
+*.local
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and *not* Next.js
