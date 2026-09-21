@@ -46,6 +46,55 @@ body {
     @apply mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-neutral-200 pt-8;
   }
 
+  .section {
+    @apply mt-12 border-t border-neutral-200 pt-8;
+  }
+
+  .h2 {
+    @apply text-lg font-medium tracking-tight text-neutral-900;
+  }
+
+  .body {
+    @apply mt-3 max-w-md text-[15px] leading-7 text-neutral-500;
+  }
+
+  .link-inline {
+    @apply text-neutral-900 underline decoration-neutral-300 underline-offset-4 transition hover:decoration-neutral-500;
+  }
+
+  .pre {
+    @apply mt-4 max-w-md overflow-x-auto rounded-2xl border border-neutral-200 bg-neutral-950 px-4 py-3.5 font-mono text-[13px] leading-6 text-neutral-200;
+  }
+
+  .code {
+    @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] text-neutral-700;
+  }
+
+  .pre .code,
+  pre .code {
+    @apply rounded-none border-0 bg-transparent p-0 text-inherit;
+  }
+
+  .steps {
+    @apply mt-5 flex max-w-md flex-col gap-4;
+  }
+
+  .steps li {
+    @apply flex flex-col gap-1 text-[15px] leading-7 text-neutral-500;
+  }
+
+  .step-title {
+    @apply font-medium text-neutral-900;
+  }
+
+  .step-body {
+    @apply text-neutral-500;
+  }
+
+  .note {
+    @apply mt-5 max-w-md rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[13px] leading-6 text-neutral-500;
+  }
+
   .footnote {
     @apply mt-16 font-mono text-xs text-neutral-400;
   }
