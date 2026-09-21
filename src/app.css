@@ -99,6 +99,18 @@ body {
     @apply mt-16 font-mono text-xs text-neutral-400;
   }
 
+  .footer {
+    @apply mt-8 flex justify-center border-t border-neutral-200 pt-8;
+  }
+
+  .github-link {
+    @apply inline-flex items-center gap-2 font-mono text-xs text-neutral-400 transition hover:text-neutral-900;
+  }
+
+  .github-icon {
+    @apply size-4;
+  }
+
   .btn-primary {
     @apply rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white tabular-nums transition hover:bg-neutral-700 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900;
   }

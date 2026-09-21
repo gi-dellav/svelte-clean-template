@@ -3,8 +3,10 @@
 A clean static webapp template: **Svelte 5 + Vite + TailwindCSS 4 + PWA**, managed with **Bun**,
 with **GitHub Actions CI + GitHub Pages deploy** built in.
 
-Live demo: `https://<owner>.github.io/svelte-clean-template/` (served from `dist/` by the
-`Deploy to GitHub Pages` workflow).
+Repository: [github.com/gi-dellav/svelte-clean-template](https://github.com/gi-dellav/svelte-clean-template)
+
+Live demo: [gi-dellav.github.io/svelte-clean-template](https://gi-dellav.github.io/svelte-clean-template/)
+(served from `dist/` by the `Deploy to GitHub Pages` workflow).
 
 ## Stack
 
