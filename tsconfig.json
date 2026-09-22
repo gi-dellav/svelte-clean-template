@@ -21,6 +21,6 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts", "plugins/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,5 +1,32 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import PwaUpdate from "./PwaUpdate.svelte";
+  import Post from "./routes/Post.svelte";
+  import { getPost, posts } from "./lib/posts";
+  import {
+    currentRoute,
+    handleLinkClick,
+    withBase,
+    type Route,
+  } from "./lib/router";
+
+  let route = $state<Route>({ name: "home" });
+  let activePost = $derived(route.name === "post" ? getPost(route.slug) : undefined);
+
+  onMount(() => {
+    route = currentRoute();
+    const onPopState = () => {
+      route = currentRoute();
+      window.scrollTo({ top: 0 });
+    };
+    const onClick = (event: MouseEvent) => handleLinkClick(event);
+    window.addEventListener("popstate", onPopState);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      document.removeEventListener("click", onClick);
+    };
+  });
 
   let count = $state(0);
 
@@ -11,7 +38,30 @@ bun run build  # static production build into dist/
 bun run preview # preview the dist/ build locally`;
 </script>
 
-<main class="page">
+{#if route.name === "post"}
+  {#if activePost}
+    <Post post={activePost} />
+  {:else}
+    <main class="page">
+      <p class="eyebrow">404</p>
+      <h1 class="title">Post not found.</h1>
+      <div class="actions">
+        <a href={withBase("/")} class="btn-primary">Back home</a>
+      </div>
+    </main>
+  {/if}
+{:else if route.name === "not-found"}
+  {@const missingPath = route.path}
+  <main class="page">
+    <p class="eyebrow">404</p>
+    <h1 class="title">Page not found.</h1>
+    <p class="lede">No page at <code class="code">{missingPath}</code>.</p>
+    <div class="actions">
+      <a href={withBase("/")} class="btn-primary">Back home</a>
+    </div>
+  </main>
+{:else}
+  <main class="page">
   <p class="eyebrow">svelte-clean-template</p>
 
   <h1 class="title">Clean, static, offline-ready.</h1>
@@ -60,6 +110,27 @@ bun run preview # preview the dist/ build locally`;
       <code class="code">dist/</code> folder is a fully static bundle — preview it with
       <code class="code">bun run preview</code>.
     </p>
+  </section>
+
+  <section aria-labelledby="writing-heading" class="section">
+    <h2 id="writing-heading" class="h2">Writing</h2>
+    <p class="body">
+      Posts live in <code class="code">src/content/*.md</code> — compiled to HTML at build time,
+      with frontmatter and GFM (tables, task lists).
+    </p>
+    <ol class="steps">
+      {#each posts as post (post.slug)}
+        <li>
+          <a href={withBase(`/post/${post.slug}`)} class="link-inline">
+            {post.metadata.title}
+          </a>
+          <span class="step-body">
+            {post.metadata.description ?? post.slug}
+            {#if post.metadata.date} · {post.metadata.date}{/if}
+          </span>
+        </li>
+      {/each}
+    </ol>
   </section>
 
   <section aria-labelledby="deploy-heading" class="section">
@@ -127,6 +198,7 @@ bun run preview # preview the dist/ build locally`;
       <span>gi-dellav/svelte-clean-template</span>
     </a>
   </footer>
-</main>
+  </main>
+{/if}
 
 <PwaUpdate />

@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { mdPlugin } from "./plugins/md.js";
 
 export default defineConfig(() => {
   // GitHub Pages serves project sites under https://<owner>.github.io/<repo>/,
@@ -21,6 +22,7 @@ export default defineConfig(() => {
   return {
     base,
     plugins: [
+      mdPlugin(),
       svelte(),
       tailwindcss(),
       VitePWA({
