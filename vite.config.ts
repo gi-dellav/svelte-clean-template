@@ -10,14 +10,14 @@ export default defineConfig(() => {
   // from GITHUB_REPOSITORY so forks work without code changes.
   // Override with BASE_PATH (e.g. BASE_PATH=/ for a custom domain or
   // <owner>.github.io user site).
-  const repo = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
+  const repo = process.env["GITHUB_REPOSITORY"]?.split("/")[1] ?? "";
   const isUserSite = repo.endsWith(".github.io");
   // Treat an empty BASE_PATH (e.g. an unset GitHub `vars.BASE_PATH`) as "not set"
   // so the automatic Pages sub-path detection below still applies.
-  const baseOverride = process.env.BASE_PATH?.trim() || undefined;
+  const baseOverride = process.env["BASE_PATH"]?.trim() || undefined;
   const base =
     baseOverride ??
-    (process.env.GITHUB_ACTIONS && repo && !isUserSite ? `/${repo}/` : "/");
+    (process.env["GITHUB_ACTIONS"] && repo && !isUserSite ? `/${repo}/` : "/");
 
   return {
     base,
