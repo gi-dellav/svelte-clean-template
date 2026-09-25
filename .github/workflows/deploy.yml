@@ -36,6 +36,9 @@ jobs:
       - name: Type check
         run: bun run check
 
+      - name: Unit tests
+        run: bun run test
+
       - name: Build static site
         run: bun run build
         env:

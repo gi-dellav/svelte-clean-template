@@ -6,9 +6,9 @@ import { copyFileSync, existsSync } from "node:fs";
 import { basename, join } from "node:path";
 
 /** Placeholder replaced at runtime with `import.meta.env.BASE_URL` (Pages sub-path aware). */
-const BASE_PLACEHOLDER = "__BASE__";
+export const BASE_PLACEHOLDER = "__BASE__";
 
-function isExternalUrl(url: string): boolean {
+export function isExternalUrl(url: string): boolean {
   return (
     url === "" ||
     url.startsWith("#") ||
@@ -27,7 +27,7 @@ function isExternalUrl(url: string): boolean {
  *   (convention: colocated asset lives in `public/content/<slug>/foo.png`)
  * - `#anchor`, `http…`, `data:` -> untouched
  */
-function rewriteUrl(url: string, slug: string): string {
+export function rewriteUrl(url: string, slug: string): string {
   const trimmed = url.trim();
   if (isExternalUrl(trimmed)) return url;
   if (trimmed.startsWith("/")) return `${BASE_PLACEHOLDER}${trimmed.slice(1)}`;
@@ -35,14 +35,14 @@ function rewriteUrl(url: string, slug: string): string {
   return `${BASE_PLACEHOLDER}content/${slug}/${cleaned}`;
 }
 
-function rewriteAssetUrls(html: string, slug: string): string {
+export function rewriteAssetUrls(html: string, slug: string): string {
   return html.replace(
     /\s(?:src|href)="([^"]*)"/g,
     (match, url: string) => match.replace(url, rewriteUrl(url, slug)),
   );
 }
 
-interface MdFrontmatter {
+export interface MdFrontmatter {
   title?: unknown;
   date?: unknown;
   description?: unknown;

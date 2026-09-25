@@ -1,21 +1,11 @@
-import type { PostMetadata, PostModule } from "../md.js";
+import type { PostModule } from "../md.js";
+import { buildPosts, type Post } from "./post-utils.js";
 
-export interface Post {
-  slug: string;
-  metadata: PostMetadata;
-  html: string;
-}
+export type { Post };
 
 const modules = import.meta.glob<PostModule>("../content/*.md", { eager: true });
 
-function compareDateDesc(a: Post, b: Post): number {
-  return (b.metadata.date ?? "").localeCompare(a.metadata.date ?? "");
-}
-
-export const posts: Post[] = Object.values(modules)
-  .map((mod) => ({ slug: mod.slug, metadata: mod.metadata, html: mod.html }))
-  .filter((post) => (import.meta.env.PROD ? !post.metadata.draft : true))
-  .sort(compareDateDesc);
+export const posts: Post[] = buildPosts(modules, import.meta.env.PROD);
 
 export function getPost(slug: string): Post | undefined {
   return posts.find((post) => post.slug === slug);

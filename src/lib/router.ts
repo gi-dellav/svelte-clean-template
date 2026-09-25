@@ -5,9 +5,8 @@ function basePath(): string {
   return base.endsWith("/") ? base.slice(0, -1) : base;
 }
 
-/** Strip the Pages sub-path (`/repo`) so routes match on `/…`; never hardcode `/`. */
-export function pathWithoutBase(pathname: string): string {
-  const base = basePath();
+/** Pure core of {@link pathWithoutBase}: strip a known base prefix. No env access. */
+export function stripBase(pathname: string, base: string): string {
   if (base !== "" && (pathname === base || pathname.startsWith(`${base}/`))) {
     const rest = pathname.slice(base.length);
     return rest === "" ? "/" : rest;
@@ -15,14 +14,23 @@ export function pathWithoutBase(pathname: string): string {
   return pathname;
 }
 
-export function withBase(path: string): string {
-  const base = import.meta.env.BASE_URL;
+/** Pure core of {@link withBase}: prefix a path with a known base. No env access. */
+export function joinBase(path: string, base: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   return `${base === "/" ? "" : base.replace(/\/$/, "")}${clean}`;
 }
 
-export function parseRoute(pathname: string): Route {
-  const path = pathWithoutBase(pathname);
+/** Strip the Pages sub-path (`/repo`) so routes match on `/…`; never hardcode `/`. */
+export function pathWithoutBase(pathname: string, base: string = basePath()): string {
+  return stripBase(pathname, base);
+}
+
+export function withBase(path: string, base: string = import.meta.env.BASE_URL): string {
+  return joinBase(path, base);
+}
+
+export function parseRoute(pathname: string, base?: string): Route {
+  const path = base === undefined ? pathWithoutBase(pathname) : pathWithoutBase(pathname, base);
   if (path === "/") return { name: "home" };
   const post = path.match(/^\/post\/([^/]+)\/?$/);
   if (post?.[1]) return { name: "post", slug: decodeURIComponent(post[1]) };

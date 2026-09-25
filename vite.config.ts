@@ -3,6 +3,10 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { mdPlugin } from "./plugins/md.js";
+import { parseRepo, resolveBase } from "./src/lib/base.js";
+
+export type { BaseOptions } from "./src/lib/base.js";
+export { parseRepo, resolveBase } from "./src/lib/base.js";
 
 export default defineConfig(() => {
   // GitHub Pages serves project sites under https://<owner>.github.io/<repo>/,
@@ -10,14 +14,17 @@ export default defineConfig(() => {
   // from GITHUB_REPOSITORY so forks work without code changes.
   // Override with BASE_PATH (e.g. BASE_PATH=/ for a custom domain or
   // <owner>.github.io user site).
-  const repo = process.env["GITHUB_REPOSITORY"]?.split("/")[1] ?? "";
+  const repo = parseRepo(process.env["GITHUB_REPOSITORY"]);
   const isUserSite = repo.endsWith(".github.io");
   // Treat an empty BASE_PATH (e.g. an unset GitHub `vars.BASE_PATH`) as "not set"
   // so the automatic Pages sub-path detection below still applies.
   const baseOverride = process.env["BASE_PATH"]?.trim() || undefined;
-  const base =
-    baseOverride ??
-    (process.env["GITHUB_ACTIONS"] && repo && !isUserSite ? `/${repo}/` : "/");
+  const base = resolveBase({
+    repo,
+    isUserSite,
+    baseOverride,
+    hasActions: Boolean(process.env["GITHUB_ACTIONS"]),
+  });
 
   return {
     base,

@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "vite-plugin-pwa/client"],
+    "types": ["vite/client", "vite-plugin-pwa/client", "bun-types/test"],
 
     "allowJs": true,
     "checkJs": true,
@@ -48,6 +48,6 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts", "plugins/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.svelte", "vite.config.ts", "plugins/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
