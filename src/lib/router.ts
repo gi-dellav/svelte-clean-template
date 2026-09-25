@@ -46,6 +46,27 @@ export function currentRoute(): Route {
   return parseRoute(window.location.pathname);
 }
 
+/** Parse a query string (`""` or `"?a=1"`) without touching `window`. */
+export function parseQuery(search: string): URLSearchParams {
+  return new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+}
+
+/** Normalize a hash (`""` or `"#section"`) without touching `window`. */
+export function parseHash(hash: string): string {
+  if (hash === "") return "";
+  return hash.startsWith("#") ? hash : `#${hash}`;
+}
+
+/** Current query params; routes match on `pathname`, query is per-route state. */
+export function currentQuery(): URLSearchParams {
+  return parseQuery(window.location.search);
+}
+
+/** Current hash (`"#section"` or `""`); routes match on `pathname`, hash is per-route state. */
+export function currentHash(): string {
+  return parseHash(window.location.hash);
+}
+
 /** Intercept same-origin app links so history navigation stays client-side. */
 export function handleLinkClick(event: MouseEvent): void {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {

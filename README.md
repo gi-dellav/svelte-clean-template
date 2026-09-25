@@ -57,6 +57,10 @@ src/
     base.ts           # Pages base derivation (parseRepo, resolveBase)
     posts.ts          # import.meta.glob collection (draft filter, date-desc sort)
     post-utils.ts     # pure post builders (tested without env/glob)
+    storage.ts        # never-throw localStorage layer (StorageLike, memoryStorage)
+    local-store.svelte.ts # runes localStore(key, initial) factory
+    async.ts          # AsyncState machine + fetchJson + toErrorMessage
+    form.ts           # pure validators (required, emailField, minLength, validateAll)
   routes/
     Post.svelte       # renders compiled post HTML inside article.prose
   content/
@@ -69,6 +73,9 @@ tests/
   md.test.ts          # rewriteUrl / rewriteAssetUrls / srcset / mdPlugin transform
   posts.test.ts       # buildPosts / sorting / draft filter
   seo.test.ts         # site root / sitemap / RSS / robots / head injection
+  storage.test.ts     # StorageLike / readStored / writeStored / clearStored
+  async.test.ts       # AsyncState / toErrorMessage / fetchJson (stubbed fetch)
+  form.test.ts        # required / email / minLength / validateAll
 ```
 
 ## Continuous integration (Bun)

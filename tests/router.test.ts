@@ -1,5 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import { joinBase, parseRoute, pathWithoutBase, stripBase, withBase } from "../src/lib/router.js";
+import {
+  joinBase,
+  parseHash,
+  parseQuery,
+  parseRoute,
+  pathWithoutBase,
+  stripBase,
+  withBase,
+} from "../src/lib/router.js";
 
 describe("stripBase", () => {
   it("strips the base prefix", () => {
@@ -74,5 +82,28 @@ describe("parseRoute", () => {
     expect(parseRoute("/repo/", "/repo")).toEqual({ name: "home" });
     expect(parseRoute("/repo/post/hello", "/repo")).toEqual({ name: "post", slug: "hello" });
     expect(parseRoute("/repo/unknown", "/repo")).toEqual({ name: "not-found", path: "/unknown" });
+  });
+
+  it("parses query strings and keeps the base-aware split consistent", () => {
+    expect(parseRoute("/search?q=a%20b#top", "/")).toEqual({
+      name: "not-found",
+      path: "/search?q=a%20b#top",
+    });
+    expect(pathWithoutBase("/repo/search?q=x", "/repo")).toBe("/search?q=x");
+    expect(withBase(`/search?q=${encodeURIComponent("a b")}`, "/repo")).toBe("/repo/search?q=a%20b");
+  });
+});
+
+describe("parseQuery / parseHash", () => {
+  it("parses query strings with or without a leading ?", () => {
+    expect(parseQuery("?q=a%20b").get("q")).toBe("a b");
+    expect(parseQuery("q=x").get("q")).toBe("x");
+    expect(parseQuery("").get("q")).toBeNull();
+  });
+
+  it("normalizes hashes to a leading # or empty", () => {
+    expect(parseHash("#top")).toBe("#top");
+    expect(parseHash("top")).toBe("#top");
+    expect(parseHash("")).toBe("");
   });
 });

@@ -18,13 +18,13 @@ Stack: **Svelte 5 (runes) + Vite 8 + TailwindCSS 4 (Vite plugin) + `vite-plugin-
 
 - `basePath()` reads `import.meta.env.BASE_URL` (trailing slash stripped).
 - `pathWithoutBase(pathname)` strips the Pages sub-path (`/<repo>`) so matching always runs on `/…`.
-- `parseRoute` matches `/` → home, `/post/<slug>` (trailing slash tolerated, `decodeURIComponent` on slug) → post, else not-found.
+- `parseRoute` matches `/` → home, `/post/<slug>` (trailing slash tolerated, `decodeURIComponent` on slug) → post, else not-found. Query/hash are ignored by matching; parse them per-route with `currentQuery()` / `currentHash()` (pure cores `parseQuery` / `parseHash`, see `frontend-patterns.md` §6).
 - `withBase(path)` prefixes `BASE_URL` for every internal `href`. `navigate(path)` pushes `withBase`d URL and dispatches `popstate`.
 - `handleLinkClick(event)` keeps navigation client-side: ignores non-left-click, modifier keys, `target="_blank"`, `download`, `rel="external"`, `#`/`mailto:`/absolute-scheme hrefs, and cross-origin URLs. Same-path navigations only scroll to `url.hash` if present. Everything else is intercepted, `preventDefault`ed, and pushed via history API.
 
 **Rules:** build internal links with `withBase()`, navigate with `navigate()`/`handleLinkClick()`, match with `pathWithoutBase()`. Never hardcode `/`-rooted hrefs in app code. External links: `target="_blank" rel="noreferrer"`.
 
-Adding a route: extend `Route`, add a `parseRoute` branch, add a switch arm in `App.svelte`, link to it with `withBase()`.
+Adding a route: full 6-step recipe in `frontend-patterns.md` §1 (extend `Route`, `parseRoute` branch, `App.svelte` arm + `<Seo/>`, `withBase()` link, router test, `check`/`test`/`build`).
 
 ## 3. Build pipeline (`vite.config.ts`, `plugins/md.ts`, `plugins/seo.ts`)
 

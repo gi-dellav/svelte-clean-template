@@ -37,8 +37,12 @@ Bun only. Test runner is `bun test` (`tests/*.test.ts`); CI runs `check` + `test
 | `index.html` | Vite entry, mounts `#app`, PWA icon links, `theme-color` |
 | `src/main.ts` | Imports Geist fonts + `app.css`, mounts `App` |
 | `src/App.svelte` | Root route switch; demo landing page (counter, posts list, deploy guide) |
-| `src/lib/router.ts` | `Route`, `withBase`, `pathWithoutBase`, `navigate`, `currentRoute`, `handleLinkClick` |
+| `src/lib/router.ts` | `Route`, `withBase`, `pathWithoutBase`, `navigate`, `currentRoute`, `handleLinkClick`, `parseQuery`, `parseHash` |
 | `src/lib/posts.ts` | `import.meta.glob` over `src/content/*.md`, draft filter, date-desc sort |
+| `src/lib/storage.ts` | Never-throw `localStorage` helpers (`StorageLike`, `memoryStorage`, `readStored`, …) |
+| `src/lib/local-store.svelte.ts` | Runes `localStore(key, initial)` factory (check/build-covered, not unit-tested) |
+| `src/lib/async.ts` | `AsyncState` machine + `fetchJson` + `toErrorMessage` |
+| `src/lib/form.ts` | Pure validators (`required`, `emailField`, `minLength`, `validateAll`) |
 | `src/routes/Post.svelte` | Renders `{@html post.html}` inside `article.prose` |
 | `src/content/*.md` | Markdown posts with frontmatter |
 | `plugins/md.ts` | Vite plugin: frontmatter + GFM render + heading ids + asset rewrite + `404.html` |
@@ -61,6 +65,7 @@ Bun only. Test runner is `bun test` (`tests/*.test.ts`); CI runs `check` + `test
 ## 6. Conventions
 
 - **Styling:** reuse `@layer components` classes from `src/app.css`; change the look by editing `@theme` tokens, not by inlining ad-hoc Tailwind everywhere. Render markdown HTML inside `prose`. See `DESIGN.md`.
+- **Interactive patterns:** `knowledge/frontend-patterns.md` is the recipe book (add route + lazy import, `localStore`, async fetch, form, query/hash). Use its primitives in `src/lib/`; keep new validators/state pure and `bun test`-covered.
 - **Fonts:** via Fontsource (`@fontsource-variable/geist`, `geist-mono`), wired in `main.ts` and `@theme`.
 - **Posts:** `src/content/<slug>.md` with `title` (required), `date`, `description`, `draft` frontmatter. `draft: true` hides the post in `PROD` builds only.
 - **TypeScript:** strict; prefer `import type`, avoid unused locals/params, narrow `unknown` frontmatter explicitly.
@@ -72,5 +77,6 @@ Bun only. Test runner is `bun test` (`tests/*.test.ts`); CI runs `check` + `test
   - `knowledge/architecture.md` — router, build pipeline, base path, PWA
   - `knowledge/content-authoring.md` — markdown pipeline, frontmatter, assets
   - `knowledge/deployment.md` — CI, Pages setup, `BASE_PATH`, manual deploy
+  - `knowledge/frontend-patterns.md` — route/lazy, `localStore`, async, form, query recipes
 
 `knowledge/` is **docs-only**: it lives at the repo root, is never imported by `src/`/`plugins/`, and is never built into `dist/`. Keep it that way.

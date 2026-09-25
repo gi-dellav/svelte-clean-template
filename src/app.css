@@ -124,6 +124,30 @@ body {
     @apply text-xs text-neutral-400;
   }
 
+  .form {
+    @apply mt-4 flex max-w-md flex-col gap-4;
+  }
+
+  .field {
+    @apply flex flex-col gap-1.5 text-[15px] leading-7 text-neutral-500;
+  }
+
+  .label {
+    @apply text-sm font-medium text-neutral-900;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 outline-none placeholder:text-neutral-300 focus:border-neutral-400;
+  }
+
+  .input[aria-invalid="true"] {
+    @apply border-red-300 focus:border-red-500;
+  }
+
+  .form-error {
+    @apply text-[13px] text-red-600;
+  }
+
   .toast {
     @apply fixed inset-x-0 bottom-6 z-50 mx-auto flex w-[min(92%,24rem)] items-center justify-between gap-4 rounded-full border border-neutral-200 bg-white/90 py-2 pr-2 pl-5 shadow-sm backdrop-blur;
   }

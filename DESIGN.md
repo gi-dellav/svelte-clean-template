@@ -50,6 +50,13 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 - `.steps` + `li` + `.step-title` (neutral-900 medium) / `.step-body` (neutral-500).
 - `.note` — neutral-50 info well, 13px.
 
+**Forms (minimal set — see `knowledge/frontend-patterns.md` §5):**
+- `.form` — vertical stack (`max-w-md`, gap-4).
+- `.field` — label + control + error column.
+- `.label` — sm medium neutral-900; always paired with `for`/`id`.
+- `.input` — full-width rounded-xl bordered control (`placeholder neutral-300`, `focus neutral-400`). `[aria-invalid="true"]` turns the border red — set it whenever a `.form-error` is shown.
+- `.form-error` — 13px red-600 message with `role="alert"` + `aria-describedby` wiring.
+
 **Overlays / toasts:**
 - `.toast` (+ `.toast-text`, `.toast-btn-solid`, `.toast-btn-quiet`) — bottom-center pill used by `PwaUpdate.svelte`.
 
@@ -70,4 +77,4 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 
 ## 7. Non-goals (not yet built)
 
-No dark mode, no brand palette, no spacing/type-scale tokens, no focus-ring system beyond the primary button/input, no syntax highlighting for code blocks. SEO defaults (canonical, OG/Twitter tags, `sitemap.xml`/`rss.xml`/`robots.txt`, per-route `<title>`) ship via `plugins/seo.ts` + `src/Seo.svelte`. Agents may add any of these — document additions here.
+No dark mode, no brand palette, no spacing/type-scale tokens, no focus-ring system beyond the primary button/input, no syntax highlighting for code blocks. SEO defaults (canonical, OG/Twitter tags, `sitemap.xml`/`rss.xml`/`robots.txt`, per-route `<title>`) ship via `plugins/seo.ts` + `src/Seo.svelte`. Interactive patterns (route + lazy import, `localStore`, async fetch, form + validation) live in `knowledge/frontend-patterns.md` with primitives in `src/lib/`. Agents may add any of these — document additions here.
