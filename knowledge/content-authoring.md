@@ -38,7 +38,7 @@ mapped to `{ slug, metadata, html }`, filtered (`draft` excluded when `import.me
 
 ## 4. Assets
 
-Images/files referenced in markdown are rewritten by `rewriteUrl(url, slug)`; `src`/`href` attributes only. External URLs (`#`, `http(s):`, `mailto:`, `data:`, `blob:`) pass through untouched:
+Images/files referenced in markdown are rewritten by `rewriteUrl(url, slug)`; `src`/`href` (double-, single-quoted or unquoted) plus `srcset` candidates. External URLs (`#`, `http(s):`, `mailto:`, `data:`, `blob:`) pass through untouched:
 
 | You write | Emitted | Convention |
 |---|---|---|
@@ -50,6 +50,7 @@ Leading `./` and `../` prefixes are stripped before colocation. Keep the `__BASE
 ## 5. Gotchas
 
 - Only `*.md` under `src/content/` is collected (`import.meta.glob("../content/*.md")`). Markdown elsewhere is compiled by the plugin but never listed — `knowledge/*.md` intentionally stays out (docs-only, never imported, never built into `dist/`).
-- `draft: true` posts still appear under `bun run dev`; verify hiding with a production build.
-- Dates are plain strings — keep ISO `YYYY-MM-DD` format so lexical sort == chronological sort.
+- `draft: true` posts still appear under `bun run dev`; verify hiding with a production build. Drafts are also excluded from `sitemap.xml`/`rss.xml`.
+- Dates are plain strings — keep ISO `YYYY-MM-DD` format so lexical sort == chronological sort. Sitemap `lastmod` and RSS `pubDate` derive from the same string; anything else is dropped from the feed.
+- Every new post automatically appears in `sitemap.xml`/`rss.xml` and gets per-route `<title>`/canonical/OG via `src/Seo.svelte` — no manual SEO work.
 - Rendered HTML is injected with `{@html}`: author content is trusted; do not render untrusted user input this way.

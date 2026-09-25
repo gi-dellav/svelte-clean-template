@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { registerSW } from "virtual:pwa-register";
   import { fly } from "svelte/transition";
 
   let needRefresh = $state(false);
   let offlineReady = $state(false);
+  let readyTimer: ReturnType<typeof setTimeout> | undefined;
 
   let message = $derived(needRefresh ? "A new version is available." : "Ready to work offline.");
 
@@ -11,7 +13,8 @@
     onNeedRefresh: () => (needRefresh = true),
     onOfflineReady: () => {
       offlineReady = true;
-      setTimeout(dismiss, 4000);
+      clearTimeout(readyTimer);
+      readyTimer = setTimeout(dismiss, 4000);
     },
   });
 
@@ -19,6 +22,10 @@
     needRefresh = false;
     offlineReady = false;
   }
+
+  onDestroy(() => {
+    clearTimeout(readyTimer);
+  });
 </script>
 
 {#if needRefresh || offlineReady}

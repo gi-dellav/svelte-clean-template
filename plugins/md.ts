@@ -35,10 +35,51 @@ export function rewriteUrl(url: string, slug: string): string {
   return `${BASE_PLACEHOLDER}content/${slug}/${cleaned}`;
 }
 
+export function rewriteSrcset(value: string, slug: string): string {
+  // Split on commas, but re-join `data:` URLs (which contain a comma before
+  // the base64 payload) before rewriting each candidate's URL.
+  const parts = value.split(",");
+  const candidates: string[] = [];
+  let buffer = "";
+  for (const part of parts) {
+    buffer = buffer === "" ? part : `${buffer},${part}`;
+    const trimmed = buffer.trim();
+    if (/^data:/i.test(trimmed) && !/\s/.test(trimmed)) continue;
+    candidates.push(buffer);
+    buffer = "";
+  }
+  if (buffer !== "") candidates.push(buffer);
+
+  return candidates
+    .map((entry) => {
+      const m = entry.match(/^(\s*)([^\s]+)([\s\S]*)$/);
+      if (!m) return entry;
+      const [, lead, url, rest] = m;
+      if (url === undefined) return entry;
+      return `${lead ?? ""}${rewriteUrl(url, slug)}${rest ?? ""}`;
+    })
+    .join(",");
+}
+
 export function rewriteAssetUrls(html: string, slug: string): string {
-  return html.replace(
-    /\s(?:src|href)="([^"]*)"/g,
-    (match, url: string) => match.replace(url, rewriteUrl(url, slug)),
+  const withSrcset = html.replace(
+    /\ssrcset\s*=\s*("[^"]*"|'[^']*')/g,
+    (match, quoted: string) => {
+      const quote = quoted[0] ?? '"';
+      const value = quoted.slice(1, -1);
+      return match.replace(quoted, `${quote}${rewriteSrcset(value, slug)}${quote}`);
+    },
+  );
+  return withSrcset.replace(
+    /\s(?:src|href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/g,
+    (match, value: string) => {
+      if (value.startsWith('"') || value.startsWith("'")) {
+        const quote = value[0];
+        const url = value.slice(1, -1);
+        return match.replace(value, `${quote}${rewriteUrl(url, slug)}${quote}`);
+      }
+      return match.replace(value, rewriteUrl(value, slug));
+    },
   );
 }
 

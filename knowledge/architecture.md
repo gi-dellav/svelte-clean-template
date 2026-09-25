@@ -9,7 +9,8 @@ Stack: **Svelte 5 (runes) + Vite 8 + TailwindCSS 4 (Vite plugin) + `vite-plugin-
 - `route = $state<Route>({ name: "home" })`; `activePost = $derived(...)` via `getPost(slug)`.
 - `onMount` wires `popstate` (recompute route + scroll to top) and a document-level `click` listener delegating to `handleLinkClick`. Cleanup removes both.
 - Three states: `home` (demo landing), `post` (renders `src/routes/Post.svelte` or an inline 404 block), `not-found` (shows `route.path`).
-- `<PwaUpdate/>` is always mounted (toast UI for SW updates).
+- Every state mounts `<Seo/>` (per-route `<title>`/description/canonical/OG via `<svelte:head>`, `noindex` on 404s).
+- `<PwaUpdate/>` is always mounted (toast UI for SW updates; `onDestroy` clears the auto-dismiss timer).
 
 ## 2. Router (`src/lib/router.ts`)
 
@@ -25,23 +26,26 @@ Stack: **Svelte 5 (runes) + Vite 8 + TailwindCSS 4 (Vite plugin) + `vite-plugin-
 
 Adding a route: extend `Route`, add a `parseRoute` branch, add a switch arm in `App.svelte`, link to it with `withBase()`.
 
-## 3. Build pipeline (`vite.config.ts`, `plugins/md.ts`)
+## 3. Build pipeline (`vite.config.ts`, `plugins/md.ts`, `plugins/seo.ts`)
 
-Plugin order: `mdPlugin()` (`enforce: "pre"`) → `svelte()` → `tailwindcss()` → `VitePWA()`.
+Plugin order: `mdPlugin()` (`enforce: "pre"`) → `seoPlugin()` → `svelte()` → `tailwindcss()` → `VitePWA()`.
 
 1. `mdPlugin.transform` compiles each `src/content/*.md` at build time (frontmatter via `gray-matter`, GFM via `marked`, heading ids via `github-slugger`); see `content-authoring.md`.
-2. Svelte compiles runes components (`vitePreprocess` per `svelte.config.js`).
-3. Tailwind 4 scans Svelte + generated HTML; component classes come from `@layer components` in `src/app.css`.
-4. `VitePWA` emits the service worker + manifest, precaching `**/*.{js,css,html,svg,png,ico,woff2}` with `cleanupOutdatedCaches`.
-5. `mdPlugin.closeBundle` copies `dist/index.html` → `dist/404.html` **in-band** (so Workbox precaches the fallback). This is the SPA deep-link fallback for routes like `/<repo>/post/<slug>` — do not replace with a post-build `cp`.
+2. `seoPlugin.transformIndexHtml` injects canonical / `og:url` / RSS links into `index.html`; `seoPlugin.generateBundle` emits `sitemap.xml`, `rss.xml`, `robots.txt` in-band (so Workbox precaches them).
+3. Svelte compiles runes components (`vitePreprocess` per `svelte.config.js`).
+4. Tailwind 4 scans Svelte + generated HTML; component classes come from `@layer components` in `src/app.css`.
+5. `VitePWA` emits the service worker + manifest, precaching `**/*.{js,css,html,svg,png,ico,woff2,xml,txt}` with `cleanupOutdatedCaches`.
+6. `mdPlugin.closeBundle` copies `dist/index.html` → `dist/404.html` **in-band** (so Workbox precaches the fallback). This is the SPA deep-link fallback for routes like `/<repo>/post/<slug>` — do not replace with a post-build `cp`.
 
 ## 4. Base path (GitHub Pages sub-path)
 
 Project sites serve under `https://<owner>.github.io/<repo>/`, so `vite.config.ts` derives `base`:
 
-- `BASE_PATH` env (trimmed; empty = unset) wins when set.
+- `BASE_PATH` env (trimmed; empty = unset, missing slashes auto-added) wins when set.
 - Else, under `GITHUB_ACTIONS` with a non-user-site repo (`<repo>` not ending in `.github.io`): `/<repo>/`.
 - Else `/`.
+
+The canonical site root (for `sitemap.xml`, `rss.xml`, canonical links) follows `SITE_URL` when set, else the Pages URL on CI, else the build `base` (local previews therefore emit path-rooted sitemaps — set `SITE_URL` for an absolute one).
 
 `PwaUpdate` needs no base handling; manifest `start_url`/`scope` are set to `base` so "Add to Home Screen" works under the sub-path. Content asset URLs use the `__BASE__` placeholder replaced at runtime with `import.meta.env.BASE_URL` (see `content-authoring.md`).
 

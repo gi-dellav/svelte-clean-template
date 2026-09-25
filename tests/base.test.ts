@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { parseRepo, resolveBase } from "../src/lib/base.js";
+import { normalizeBaseOverride, parseRepo, resolveBase } from "../src/lib/base.js";
 
 describe("parseRepo", () => {
   it("extracts the repo from owner/repo", () => {
@@ -35,5 +35,27 @@ describe("resolveBase", () => {
       resolveBase({ repo: "my-repo", isUserSite: false, baseOverride: undefined, hasActions: false }),
     ).toBe("/");
     expect(resolveBase({ repo: "", isUserSite: false, baseOverride: undefined, hasActions: true })).toBe("/");
+  });
+
+  it("treats blank overrides as unset", () => {
+    expect(
+      resolveBase({ repo: "my-repo", isUserSite: false, baseOverride: "  ", hasActions: true }),
+    ).toBe("/my-repo/");
+  });
+});
+
+describe("normalizeBaseOverride", () => {
+  it("returns undefined for missing or blank values", () => {
+    expect(normalizeBaseOverride(undefined)).toBeUndefined();
+    expect(normalizeBaseOverride("")).toBeUndefined();
+    expect(normalizeBaseOverride("   ")).toBeUndefined();
+  });
+
+  it("ensures leading and trailing slashes", () => {
+    expect(normalizeBaseOverride("/")).toBe("/");
+    expect(normalizeBaseOverride("custom")).toBe("/custom/");
+    expect(normalizeBaseOverride("custom/")).toBe("/custom/");
+    expect(normalizeBaseOverride("/custom")).toBe("/custom/");
+    expect(normalizeBaseOverride(" /custom/ ")).toBe("/custom/");
   });
 });

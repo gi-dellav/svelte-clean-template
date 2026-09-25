@@ -4,6 +4,7 @@ import {
   isExternalUrl,
   mdPlugin,
   rewriteAssetUrls,
+  rewriteSrcset,
   rewriteUrl,
 } from "../plugins/md.js";
 
@@ -43,6 +44,45 @@ describe("rewriteAssetUrls", () => {
     const html = `<img src="/a.png"><a href="./b.png">x</a><p>./b.png</p>`;
     expect(rewriteAssetUrls(html, "slug")).toBe(
       `<img src="${BASE_PLACEHOLDER}a.png"><a href="${BASE_PLACEHOLDER}content/slug/b.png">x</a><p>./b.png</p>`,
+    );
+  });
+
+  it("handles single-quoted and unquoted attribute values", () => {
+    expect(rewriteAssetUrls(`<img src='./a.png'>`, "slug")).toBe(
+      `<img src='${BASE_PLACEHOLDER}content/slug/a.png'>`,
+    );
+    expect(rewriteAssetUrls(`<img src=./a.png>`, "slug")).toBe(
+      `<img src=${BASE_PLACEHOLDER}content/slug/a.png>`,
+    );
+    expect(rewriteAssetUrls(`<a href = "/x.png">y</a>`, "slug")).toBe(
+      `<a href = "${BASE_PLACEHOLDER}x.png">y</a>`,
+    );
+  });
+
+  it("leaves external URLs untouched", () => {
+    const html = `<img src="https://example.com/a.png"><a href="#s">x</a>`;
+    expect(rewriteAssetUrls(html, "slug")).toBe(html);
+  });
+});
+
+describe("rewriteSrcset", () => {
+  it("rewrites each candidate URL with its descriptor preserved", () => {
+    expect(rewriteSrcset("./a.png 480w, /b.png 800w", "slug")).toBe(
+      `${BASE_PLACEHOLDER}content/slug/a.png 480w, ${BASE_PLACEHOLDER}b.png 800w`,
+    );
+  });
+
+  it("leaves data: URLs and external entries untouched", () => {
+    const value = "data:image/png;base64,x 1x, https://example.com/b.png 2x";
+    expect(rewriteSrcset(value, "slug")).toBe(value);
+  });
+
+  it("rewrites srcset attributes in HTML (both quote styles)", () => {
+    expect(rewriteAssetUrls(`<img srcset="./a.png 1x, ./b.png 2x">`, "slug")).toBe(
+      `<img srcset="${BASE_PLACEHOLDER}content/slug/a.png 1x, ${BASE_PLACEHOLDER}content/slug/b.png 2x">`,
+    );
+    expect(rewriteAssetUrls(`<img srcset='./a.png 1x'>`, "slug")).toBe(
+      `<img srcset='${BASE_PLACEHOLDER}content/slug/a.png 1x'>`,
     );
   });
 });

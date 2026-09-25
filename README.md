@@ -24,9 +24,9 @@ Requires [Bun](https://bun.sh) ≥ 1.1.
 ```bash
 bun install
 bun run dev       # start the dev server
-bun run build     # production build into dist/
-bun run preview   # preview the production build
 bun run check     # svelte-check type/diagnostics
+bun run test      # unit tests with bun test
+bun run build     # production build into dist/
 ```
 
 The `dist/` folder is a fully static bundle — deploy it to any static host
@@ -37,17 +37,38 @@ also walks through these same steps in the browser.
 
 ```
 .github/workflows/
-  ci.yml              # check + build on every push / PR (Bun)
+  ci.yml              # check + test + build on every push / PR (Bun)
   deploy.yml          # build dist/ and publish to GitHub Pages on push to main
-index.html            # Vite entry
+index.html            # Vite entry (SEO/OG defaults, PWA icons, theme-color)
 vite.config.ts        # Svelte, Tailwind and PWA plugins (+ Pages-aware base path)
-svelte.config.js
+svelte.config.js      # vitePreprocess()
+tsconfig.json         # strict TS (exactOptionalPropertyTypes, noUncheckedIndexedAccess, …)
+plugins/
+  md.ts               # build-time .md → HTML (frontmatter, GFM, heading ids, 404 fallback)
+  seo.ts              # build-time SEO (canonical/OG/RSS injection, sitemap, rss, robots)
 src/
-  main.ts             # mounts App
-  App.svelte          # sample page (usage + deploy guide)
+  main.ts             # mounts App (Geist fonts + app.css)
+  App.svelte          # sample page (usage + deploy guide) + route switch
   PwaUpdate.svelte    # offline-ready / update prompts
-  app.css             # Tailwind import + theme tokens
-public/               # favicon, PWA icons
+  Seo.svelte          # per-route <title>/description/canonical/OG (Svelte head)
+  app.css             # Tailwind import + theme tokens + component classes
+  lib/
+    router.ts         # hand-rolled history-API SPA (Route, withBase, navigate, …)
+    base.ts           # Pages base derivation (parseRepo, resolveBase)
+    posts.ts          # import.meta.glob collection (draft filter, date-desc sort)
+    post-utils.ts     # pure post builders (tested without env/glob)
+  routes/
+    Post.svelte       # renders compiled post HTML inside article.prose
+  content/
+    *.md              # markdown posts with frontmatter (title, date, description, draft)
+  md.d.ts             # PostMetadata / PostModule types + *.md declaration
+public/               # favicon, PWA icons (served as-is)
+tests/
+  base.test.ts        # resolveBase / parseRepo
+  router.test.ts      # stripBase / joinBase / parseRoute
+  md.test.ts          # rewriteUrl / rewriteAssetUrls / srcset / mdPlugin transform
+  posts.test.ts       # buildPosts / sorting / draft filter
+  seo.test.ts         # site root / sitemap / RSS / robots / head injection
 ```
 
 ## Continuous integration (Bun)
@@ -57,7 +78,8 @@ public/               # favicon, PWA icons
 1. `oven-sh/setup-bun` installs the latest Bun
 2. `bun install --frozen-lockfile` installs dependencies reproducibly
 3. `bun run check` runs `svelte-check`
-4. `bun run build` verifies the production build compiles
+4. `bun run test` runs unit tests (`bun test`)
+5. `bun run build` verifies the production build compiles
 
 No configuration needed — it works as-is on forks.
 
@@ -101,6 +123,15 @@ bun run build    # outputs to dist/
 Then upload `dist/` to Netlify, Cloudflare Pages, S3, Nginx, … The Pages workflow
 additionally writes `dist/.nojekyll` so files starting with `_` (e.g. bundled assets)
 are served correctly on Pages.
+
+`dist/` also ships `sitemap.xml`, `rss.xml` and `robots.txt` (generated in-band by
+`plugins/seo.ts` so Workbox precaches them). The sitemap URLs follow the canonical
+site root: on GitHub Actions the Pages URL is derived automatically
+(`https://<owner>.github.io/<repo>/`); for any other host set the absolute root:
+
+```bash
+SITE_URL=https://example.com/blog/ bun run build
+```
 
 ## PWA
 

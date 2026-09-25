@@ -18,7 +18,7 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 
 | Class | Usage |
 |---|---|
-| `.page` | Centered column shell: `max-w-xl`, `min-h-dvh`, `px-6 py-24`. Use on every top-level `main`. |
+| `.page` | Top-aligned column shell: `max-w-xl`, `min-h-dvh`, `px-6 py-24`. Use on every top-level `main`. |
 | `.section` | Content section: top border + `mt-12 pt-8`. Headed by `.h2`. |
 | `.footer` / `.footnote` | Footer bar / mono microcopy at page end. |
 | `.actions` | Row of CTAs under a hero block (border-t, wraps). |
@@ -39,11 +39,8 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 
 ## 4. Components
 
-**Buttons** — pill-shaped, `active:scale-[0.98]` on solid variants:
+**Buttons** — pill-shaped, `active:scale-[0.98]`:
 - `.btn-primary` — primary CTA (neutral-900 bg, white text).
-- `.btn-solid` — compact solid (same colors, smaller padding).
-- `.btn-ghost` — dashed-border secondary.
-- `.btn-quiet` / `.btn-danger` — text-only; danger hovers `red-50`/`red-600`.
 
 **Code:**
 - `.pre` — dark block (`neutral-950` bg, neutral-200 mono text, rounded-2xl, scroll-x).
@@ -53,18 +50,8 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 - `.steps` + `li` + `.step-title` (neutral-900 medium) / `.step-body` (neutral-500).
 - `.note` — neutral-50 info well, 13px.
 
-**Cards / stations (demo-domain components, reuse pattern freely):**
-- `.card`, `.card-head`, `.card-title`, `.card-tools`
-- `.station-list` (divided column), `.station`, `.station-row`, `.station-name`, `.station-sub`, `.station-edit` (edit well)
-- `.hero*` (`hero`, `hero-kicker`, `hero-timer` mono 7xl/8xl tabular, `hero-title`, `hero-sub`, `hero-actions`) — timer-demo hero; delete with the demo if unused.
-
-**Forms:**
-- `.form-grid` (2-col grid), `.field` (+ `.field-span`, first-child spans 2), `.input` (+ `.input-area`), `.form-error` (red-600), `.row` (action row), `.segment` + `.segment-btn` (`aria-pressed="true"` = active white pill).
-- `.switchers` / `.switcher` — small text toggle row. `.manage` — centered block.
-
 **Overlays / toasts:**
 - `.toast` (+ `.toast-text`, `.toast-btn-solid`, `.toast-btn-quiet`) — bottom-center pill used by `PwaUpdate.svelte`.
-- `.info-wrap`, `.info-text`, `.about-card-top/bottom`, `.about-title/sub/links/link`, `.notify-toggle` — popover/tooltip pattern.
 
 **GitHub footer:** `.github-link` + `.github-icon` (mono xs neutral-400 → 900).
 
@@ -79,8 +66,8 @@ Source of truth is `src/app.css`. This file documents what exists today so agent
 1. **Re-skin:** edit `@theme` tokens (fonts, colors) — never inline ad-hoc Tailwind for layout; add/extend `@layer components` classes instead.
 2. **Add a component:** define `.new-thing` with `@apply` in `@layer components`, reuse it in Svelte. Keep names semantic (`card-*`, `btn-*`), not utility dumps.
 3. **Sync chrome:** after changing the dark/background color, update `theme_color`/`background_color` in `vite.config.ts` and `theme-color` in `index.html`.
-4. **Delete freely:** `hero-*`, `station-*`, `segment-*` serve the demo page — remove them with `App.svelte` demo content.
+4. **Prune freely:** `app.css` only keeps classes used by `src/`; delete a component class together with its last usage.
 
 ## 7. Non-goals (not yet built)
 
-No dark mode, no brand palette, no spacing/type-scale tokens, no focus-ring system beyond buttons/inputs, no syntax highlighting for code blocks. Agents may add any of these — document additions here.
+No dark mode, no brand palette, no spacing/type-scale tokens, no focus-ring system beyond the primary button/input, no syntax highlighting for code blocks. SEO defaults (canonical, OG/Twitter tags, `sitemap.xml`/`rss.xml`/`robots.txt`, per-route `<title>`) ship via `plugins/seo.ts` + `src/Seo.svelte`. Agents may add any of these — document additions here.

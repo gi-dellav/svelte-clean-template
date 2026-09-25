@@ -3,6 +3,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { mdPlugin } from "./plugins/md.js";
+import { resolveSiteRoot, seoPlugin } from "./plugins/seo.js";
 import { parseRepo, resolveBase } from "./src/lib/base.js";
 
 export type { BaseOptions } from "./src/lib/base.js";
@@ -19,17 +20,33 @@ export default defineConfig(() => {
   // Treat an empty BASE_PATH (e.g. an unset GitHub `vars.BASE_PATH`) as "not set"
   // so the automatic Pages sub-path detection below still applies.
   const baseOverride = process.env["BASE_PATH"]?.trim() || undefined;
+  const hasActions = Boolean(process.env["GITHUB_ACTIONS"]);
   const base = resolveBase({
     repo,
     isUserSite,
     baseOverride,
-    hasActions: Boolean(process.env["GITHUB_ACTIONS"]),
+    hasActions,
+  });
+  // Canonical root for sitemap.xml / rss.xml / canonical links. `SITE_URL`
+  // (e.g. `https://example.com/blog/`) wins; otherwise derive the Pages URL
+  // on CI, else fall back to the build base. Note: when `base` is path-only
+  // (local/non-CI builds), set SITE_URL to emit absolute sitemap URLs.
+  const githubRepo = process.env["GITHUB_REPOSITORY"] ?? "";
+  const owner = githubRepo.split("/")[0] ?? "";
+  const siteRoot = resolveSiteRoot({
+    siteUrlOverride: process.env["SITE_URL"]?.trim() || undefined,
+    owner,
+    repo,
+    isUserSite,
+    hasActions,
+    base,
   });
 
   return {
     base,
     plugins: [
       mdPlugin(),
+      seoPlugin({ siteRoot }),
       svelte(),
       tailwindcss(),
       VitePWA({
@@ -64,7 +81,7 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
-          globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
+          globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2,xml,txt}"],
           cleanupOutdatedCaches: true,
         },
         devOptions: {

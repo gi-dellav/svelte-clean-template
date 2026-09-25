@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import PwaUpdate from "./PwaUpdate.svelte";
   import Post from "./routes/Post.svelte";
+  import Seo from "./Seo.svelte";
   import { getPost, posts } from "./lib/posts";
   import {
     currentRoute,
@@ -40,8 +41,14 @@ bun run preview # preview the dist/ build locally`;
 
 {#if route.name === "post"}
   {#if activePost}
+    <Seo
+      title={activePost.metadata.title}
+      description={activePost.metadata.description}
+      path={`/post/${activePost.slug}/`}
+    />
     <Post post={activePost} />
   {:else}
+    <Seo title="Post not found" path="/" noindex={true} />
     <main class="page">
       <p class="eyebrow">404</p>
       <h1 class="title">Post not found.</h1>
@@ -52,6 +59,7 @@ bun run preview # preview the dist/ build locally`;
   {/if}
 {:else if route.name === "not-found"}
   {@const missingPath = route.path}
+  <Seo title="Page not found" path={missingPath} noindex={true} />
   <main class="page">
     <p class="eyebrow">404</p>
     <h1 class="title">Page not found.</h1>
@@ -61,6 +69,7 @@ bun run preview # preview the dist/ build locally`;
     </div>
   </main>
 {:else}
+  <Seo path="/" />
   <main class="page">
   <p class="eyebrow">svelte-clean-template</p>
 

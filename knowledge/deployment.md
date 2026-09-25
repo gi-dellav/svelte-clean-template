@@ -4,11 +4,11 @@ Static output: `bun run build` → `dist/`, deployable to any static host. GitHu
 
 ## 1. Workflows
 
-**CI** (`.github/workflows/ci.yml`) — every push to `main` + every PR: `setup-bun` → `bun install --frozen-lockfile` → `bun run check` → `bun run build`. No config needed on forks.
+**CI** (`.github/workflows/ci.yml`) — every push to `main` + every PR: `setup-bun` → `bun install --frozen-lockfile` → `bun run check` → `bun run test` → `bun run build`. No config needed on forks.
 
 **Deploy** (`.github/workflows/deploy.yml`) — every push to `main` + manual dispatch (`Actions → Deploy to GitHub Pages → Run workflow`):
 
-1. Same install/check/build steps (`BASE_PATH` from repo variable `vars.BASE_PATH`; empty = auto-detect — see `architecture.md` §4).
+1. Same install/check/test/build steps (`BASE_PATH` from repo variable `vars.BASE_PATH`; empty = auto-detect — see `architecture.md` §4).
 2. `touch dist/.nojekyll` (so `_`-prefixed bundled assets serve correctly on Pages).
 3. `configure-pages` → `upload-pages-artifact` (`path: dist`) → `deploy-pages` (env `github-pages`, `pages: write` + `id-token: write`).
 4. Concurrency group `pages`, `cancel-in-progress: false` — queued runs wait, in-progress deploys finish.
@@ -34,6 +34,14 @@ bun run build    # outputs to dist/
 
 Upload `dist/` to Netlify, Cloudflare Pages, S3, Nginx, … Note: `dist/404.html` (SPA fallback copy of `index.html`) is harmless on non-Pages hosts — plain static servers ignore it; SPA-style hosts can reuse it as the fallback route. `dist/.nojekyll` is Pages-specific; other hosts ignore it.
 
+Canonical URLs need the host: on GitHub Actions the Pages URL is derived automatically, but any other host needs an explicit root:
+
+```bash
+SITE_URL=https://example.com/blog/ bun run build
+```
+
+Without `SITE_URL`, off-CI builds emit path-rooted sitemap/RSS links (correct only when served from domain root). Custom domains also need `BASE_PATH=/` (see §3) — both vars together describe a non-Pages host.
+
 ## 5. PWA + deploy interaction
 
-The service worker + manifest are generated at build time with `start_url`/`scope` = build `base`. Custom-domain or user-site moves therefore require a rebuild with the matching `BASE_PATH`, or "Add to Home Screen" scope breaks. Workbox precaches `**/*.{js,css,html,svg,png,ico,woff2}` including the in-band `404.html`; `PwaUpdate.svelte` prompts on new versions (`registerType: "autoUpdate"`).
+The service worker + manifest are generated at build time with `start_url`/`scope` = build `base`. Custom-domain or user-site moves therefore require a rebuild with the matching `BASE_PATH`, or "Add to Home Screen" scope breaks. Workbox precaches `**/*.{js,css,html,svg,png,ico,woff2,xml,txt}` including the in-band `404.html`, `sitemap.xml`, `rss.xml` and `robots.txt`; `PwaUpdate.svelte` prompts on new versions (`registerType: "autoUpdate"`).

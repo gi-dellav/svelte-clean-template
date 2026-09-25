@@ -23,11 +23,12 @@ This template is **fully flexible**. Restructure folders, delete the demo page, 
 bun install       # install dependencies
 bun run dev       # start the dev server
 bun run check     # svelte-check type/diagnostics — must pass before build
+bun run test      # unit tests with bun test — must pass before build
 bun run build     # production build into dist/
 bun run preview   # preview the production build
 ```
 
-No Node, npm, Docker, eslint, prettier, or test runner is configured. Do not add one unasked.
+Bun only. Test runner is `bun test` (`tests/*.test.ts`); CI runs `check` + `test` + `build`.
 
 ## 4. Code map
 
@@ -41,9 +42,11 @@ No Node, npm, Docker, eslint, prettier, or test runner is configured. Do not add
 | `src/routes/Post.svelte` | Renders `{@html post.html}` inside `article.prose` |
 | `src/content/*.md` | Markdown posts with frontmatter |
 | `plugins/md.ts` | Vite plugin: frontmatter + GFM render + heading ids + asset rewrite + `404.html` |
+| `plugins/seo.ts` | Build-time SEO: head injection (canonical/`og:url`/RSS) + `sitemap.xml`/`rss.xml`/`robots.txt` |
+| `src/Seo.svelte` | Per-route `<title>`/description/canonical/OG via `<svelte:head>` |
 | `src/md.d.ts` | `PostMetadata` / `PostModule` types + `*.md` module declaration |
 | `src/app.css` | Tailwind import, `@theme` tokens, `@layer components` classes |
-| `vite.config.ts` | `mdPlugin`, Svelte, Tailwind, `VitePWA`; Pages-aware `base` derivation |
+| `vite.config.ts` | `mdPlugin`, `seoPlugin`, Svelte, Tailwind, `VitePWA`; Pages-aware `base` + `SITE_URL` derivation |
 | `svelte.config.js` | `vitePreprocess()` |
 | `tsconfig.json` | Strict: `noUncheckedIndexedAccess`, `noUnusedLocals/Parameters`, `verbatimModuleSyntax`, `erasableSyntaxOnly` |
 
