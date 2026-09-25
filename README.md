@@ -88,14 +88,9 @@ tests/
 4. `bun run test` runs unit tests (`bun test`)
 5. `bun run build` verifies the production build compiles
 
-No configuration needed — it works as-is on forks.
-
 ## Deploy to GitHub Pages
 
-`.github/workflows/deploy.yml` publishes the static `dist/` build to GitHub Pages on every
-push to `main` (or manually via **Actions → Deploy to GitHub Pages → Run workflow**).
-It reuses the same Bun install/check/build steps, then uploads `dist/` with
-`actions/upload-pages-artifact` and deploys it with `actions/deploy-pages`.
+`.github/workflows/deploy.yml` publishes the static `dist/` build to GitHub Pages on every push to `main` (or manually via **Actions → Deploy to GitHub Pages → Run workflow**); it reuses the same Bun install/check/build steps, then uploads `dist/` with `actions/upload-pages-artifact` and deploys it with `actions/deploy-pages`.
 
 ### One-time setup
 
